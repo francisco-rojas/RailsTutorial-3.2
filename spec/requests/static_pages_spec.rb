@@ -1,8 +1,8 @@
 require 'spec_helper'
 
 describe "StaticPages" do
-  
-let(:base_title) { "Ruby on Rails Tutorial Sample App" }
+
+  let(:base_title) { "Ruby on Rails Tutorial Sample App" }
 
   describe "Home page" do
 
@@ -14,7 +14,12 @@ let(:base_title) { "Ruby on Rails Tutorial Sample App" }
     it "should have the title 'Home'" do
       visit '/static_pages/home'
       page.should have_selector('title',
-                        :text => "#{base_title} | Home")
+                        :text => "#{base_title}")
+    end
+
+    it "should not have a custom page title" do
+      visit '/static_pages/home'
+      page.should_not have_selector('title', :text => '| Home')
     end
   end
 
@@ -45,8 +50,8 @@ let(:base_title) { "Ruby on Rails Tutorial Sample App" }
                     :text => "#{base_title} | About Us")
     end
   end
-  
-    describe "Contact page" do
+
+  describe "Contact page" do
 
     it "should have the h1 'Contact'" do
       visit '/static_pages/contact'
@@ -59,5 +64,5 @@ let(:base_title) { "Ruby on Rails Tutorial Sample App" }
                     :text => "#{base_title} | Contact")
     end
   end
-  
+
 end
