@@ -1,3 +1,5 @@
+require './spec/support/utilities'
+
 Given /^a user visits the signin page$/ do
   visit signin_path
 end
@@ -18,7 +20,7 @@ end
 
 When /^the user submits valid signin information$/ do
   visit signin_path
-  valid_signin(@user) #check app helper
+  valid_signin(@user) #check rspec utilities
 end
 
 Then /^he should see his profile page$/ do

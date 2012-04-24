@@ -17,19 +17,20 @@ describe "AuthenticationPages" do
       before { click_button "Sign in" }
 
       it { should have_selector('title', text: 'Sign in') }
-      it { should have_error_message('Invalid') } #check app helper
+      it { should have_error_message('Invalid') } #check utilities
       #it { should have_selector('div.alert.alert-error', text: 'Invalid') }
 
       describe "after visiting another page" do
         before { click_link "Home" }
-        it { should_not have_selector('div.alert.alert-error') }
+        it { should_not have_error_message('Invalid') }
+        #it { should_not have_selector('div.alert.alert-error') }
       end
     end
 
     describe "with valid information" do
       let(:user) { FactoryGirl.create(:user) }
       before do
-        valid_signin(user) #check app helper 
+        valid_signin(user) #check utilities
         #fill_in "Email",    with: user.email
         #fill_in "Password", with: user.password
         #click_button "Sign in"
