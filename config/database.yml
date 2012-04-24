@@ -35,10 +35,12 @@ development:
   <<: *common
   database: railstutorial_development
 
-test:
+test: &test
   <<: *common
   database: railstutorial_test
 
 production:
   <<: *common
   database: railstutorial_production
+cucumber:
+  <<: *test
