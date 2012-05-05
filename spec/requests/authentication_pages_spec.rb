@@ -23,7 +23,6 @@ describe "AuthenticationPages" do
       describe "after visiting another page" do
         before { click_link "Home" }
         it { should_not have_error_message('Invalid') }
-        #it { should_not have_selector('div.alert.alert-error') }
       end
     end
 
@@ -31,9 +30,6 @@ describe "AuthenticationPages" do
       let(:user) { FactoryGirl.create(:user) }
       before do
         valid_signin(user) #check utilities
-        #fill_in "Email",    with: user.email
-        #fill_in "Password", with: user.password
-        #click_button "Sign in"
       end
 
       it { should have_selector('title', text: user.name) }
