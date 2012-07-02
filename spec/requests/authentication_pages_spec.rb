@@ -68,7 +68,18 @@ describe "AuthenticationPages" do
         describe "visiting the user index" do
           before { visit users_path }
           it { should have_selector('title', text: 'Sign in') }
-        end        
+        end
+        
+        describe "should not have links to protected pages" do
+          before { visit signin_path }
+          it { should have_selector('title', text: 'Ruby on Rails Tutorial Sample App') }
+          it { should have_link('Home', href: root_path) }
+          it { should have_link('Sign in', href: signin_path) }
+          it { should have_link('Help', href: help_path) }
+          it { should_not have_link('Profile', href: user_path(user)) }
+          it { should_not have_link('Settings', href: edit_user_path(user)) }
+          it { should_not have_link('Sign out', href: signout_path) }          
+        end
       end
       
       describe "when attempting to visit a protected page" do
@@ -83,19 +94,50 @@ describe "AuthenticationPages" do
           it "should render the desired protected page" do
             page.should have_selector('title', text: 'Edit user')
           end
+          
+          describe "after signing in again" do
+            before do
+              click_link "Sign out"
+              valid_signin(user)
+            end
+            it "should NOT render previously saved page" do
+              page.should have_selector('title', text: user.name)
+            end
+          end
         end
       end
       
       describe "as non-admin user" do
         let(:user) { FactoryGirl.create(:user) }
-        let(:non_admin) { FactoryGirl.create(:user) }
-  
+        let(:non_admin) { FactoryGirl.create(:user) }  
         before { valid_signin non_admin }
   
         describe "submitting a DELETE request to the Users#destroy action" do
           before { delete user_path(user) }
           specify { response.should redirect_to(root_path) }        
         end
+      end
+    end
+    
+    describe "for signed in users" do
+      let(:user) { FactoryGirl.create(:user) }
+      before { valid_signin user }
+      
+      describe "for new action" do
+         #"visit signup_path" won't work.Capybara can not assign anything to the
+         #@request variable after "visit" because it gets redirected which is what we want
+         #use rails "get" method instead 
+        before { get signup_path }
+        specify { response.should redirect_to(root_path) }
+      end
+      
+      describe "for create action" do
+        before do          
+          new_user = User.new(name: "user1", email: "user1@example.com", 
+                            password: "foobar", password_confirmation: "foobar")
+          post users_path(new_user)
+        end
+        specify { response.should redirect_to(root_path) }
       end
     end
     

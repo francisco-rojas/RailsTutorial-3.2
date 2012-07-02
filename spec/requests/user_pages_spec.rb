@@ -67,7 +67,7 @@ describe "User pages" do
     describe "page" do
       it { should have_selector('h1',    text: "Update your profile") }
       it { should have_selector('title', text: "Edit user") }
-      it { should have_link('change', href: 'http://gravatar.com/emails') }
+      it { should have_link('Change', href: 'http://gravatar.com/emails') }
     end
 
     describe "with invalid information" do
@@ -134,7 +134,10 @@ describe "User pages" do
         it "should be able to delete another user" do
           expect { click_link('delete') }.to change(User, :count).by(-1)
         end
-        it { should_not have_link('delete', href: user_path(admin)) }
+        it { should_not have_link('delete', href: user_path(admin)) }        
+        it "should not be able to destroy itself" do          
+          expect { delete user_path(admin) }.not_to change(User, :count)
+        end
       end
     end    
   end
