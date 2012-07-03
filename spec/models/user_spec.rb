@@ -26,6 +26,7 @@ describe User do
   it { should respond_to(:password_confirmation) }
   it { should respond_to(:remember_token) }
   it { should respond_to(:authenticate) }
+  it { should respond_to(:microposts) }
   it { should respond_to(:admin) }  
   it { should be_valid }  
   it { should_not be_admin }
@@ -125,5 +126,38 @@ describe User do
   describe "remember token" do
     before { @user.save }
     its(:remember_token) { should_not be_blank } # same as: it { @user.remember_token.should_not be_blank }
+  end
+  
+  describe "micropost associations" do
+
+    before { @user.save }
+    #let variables are lazy
+    #The let! (read “let bang”) forces the corresponding variable to come into existence immediately.
+    #This is useful here so that the timestamps are in the right order and so that @user.microposts isn’t empty
+    let!(:older_micropost) do 
+      FactoryGirl.create(:micropost, user: @user, created_at: 1.day.ago)
+    end
+    let!(:newer_micropost) do
+      FactoryGirl.create(:micropost, user: @user, created_at: 1.hour.ago)
+    end
+
+    it "should have the right microposts in the right order" do
+      #by default the posts will be ordered by id
+      @user.microposts.should == [newer_micropost, older_micropost]
+    end
+    
+    it "should destroy associated microposts" do
+    #Micropost.find_by_id, which returns nil if the record is not found,
+    #whereas Micropost.find raises an exception on failure
+      microposts = @user.microposts
+      @user.destroy
+      microposts.each do |micropost|
+        Micropost.find_by_id(micropost.id).should be_nil
+      end
+      #same as:
+      # lambda do 
+        # Micropost.find(micropost.id)
+      # end.should raise_error(ActiveRecord::RecordNotFound)
+    end
   end
 end
