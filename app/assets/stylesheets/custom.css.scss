@@ -212,3 +212,17 @@ aside {
     margin-bottom: 5px;
   }
 }
+
+/*Character counter*/
+
+span.char_counter { 
+  float: right;
+}
+
+label.counter {
+  color: #006699;
+}
+
+.no_space_left {
+  color: red;
+}

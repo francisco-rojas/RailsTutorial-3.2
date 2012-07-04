@@ -1,10 +1,11 @@
-<% provide(:title, "Sign in") %> <h1>Sign in</h1>
+<% provide(:title, "Sign in") %> 
+<h1>Sign in</h1>
 <div class="row">
 	<div class="span6 offset3">
 		<%= form_tag sessions_path do %>
 		
 			<%= label_tag :email %>
-			<%= text_field_tag :email, :email %>
+			<%= text_field_tag :email, nil, placeholder: "email" %>
 				
 			<%= label_tag :password %>
 			<%= password_field_tag :password %>
