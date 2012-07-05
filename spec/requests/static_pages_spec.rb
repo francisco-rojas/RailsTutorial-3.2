@@ -28,7 +28,60 @@ describe "Static pages" do
       page.should have_selector 'title', text: full_title('')
       click_link "Sign up now!"
       page.should have_selector 'title', text: full_title('Sign up') 
-    end        
+    end  
+    
+    describe "for signed-in users" do
+      let(:user) { FactoryGirl.create(:user) }
+      let(:other_user) { FactoryGirl.create(:user, name: "other_user", email: "other_user@example.com")}
+      before do
+        FactoryGirl.create(:micropost, user: user, content: "Lorem ipsum")
+        FactoryGirl.create(:micropost, user: user, content: "Dolor sit amet")
+        FactoryGirl.create(:micropost, user: other_user, content: "this is other_user's post")
+        valid_signin user
+        visit root_path
+      end
+  
+      it "should render the user's feed" do
+        user.feed.each do |item|
+          #Note that the first # in li##{item.id} is Capybara syntax for a CSS id,
+          #whereas the second # is the beginning of a Ruby string interpolation #{}
+          page.should have_selector("li##{item.id}", text: item.content)
+        end
+      end
+      
+      it "should display number of posts with correct pluralization" do
+       page.should have_selector 'span', tex: "#{user.microposts.count} microposts"
+       expect { click_link('delete') }.to change(user.microposts, :count).by(-1)
+       page.should have_selector 'span', tex: "#{user.microposts.count} micropost"
+      end
+      
+      it "should paginate micropost feed" do
+        page.should have_selector 'li', class: 'prev previous_page disabled'
+      end
+      
+      it "should list each micropost" do
+        user.feed.paginate(page: 1).each do |micropost|
+          page.should have_selector('li', text: micropost.content)
+        end
+      end
+      
+      #RECHECK THIS TEST
+      it "should not have delete link on other user's microposts" do
+        other_user.feed.paginate(page: 1).each do |micropost|
+          page.should_not have_link('delete', href: "/microposts/#{ micropost.id }"), text: 'delete'
+        end
+      end
+      
+      describe "follower/following counts" do        
+        before do
+          other_user.follow!(user)
+          visit root_path
+        end
+  
+        it { should have_link("0 following", href: following_user_path(user)) }
+        it { should have_link("1 followers", href: followers_user_path(user)) }
+      end
+    end     
   end
 
   describe "Help page" do
@@ -53,48 +106,5 @@ describe "Static pages" do
     let(:page_title) { 'Contact' }
 
     it_should_behave_like "all static pages"
-  end
-  
-  describe "for signed-in users" do
-    let(:user) { FactoryGirl.create(:user) }
-    let(:other_user) { FactoryGirl.create(:user, name: "other_user", email: "other_user@example.com")}
-    before do
-      FactoryGirl.create(:micropost, user: user, content: "Lorem ipsum")
-      FactoryGirl.create(:micropost, user: user, content: "Dolor sit amet")
-      FactoryGirl.create(:micropost, user: other_user, content: "this is other_user's post")
-      valid_signin user
-      visit root_path
-    end
-
-    it "should render the user's feed" do
-      user.feed.each do |item|
-        #Note that the first # in li##{item.id} is Capybara syntax for a CSS id,
-        #whereas the second # is the beginning of a Ruby string interpolation #{}
-        page.should have_selector("li##{item.id}", text: item.content)
-      end
-    end
-    
-    it "should display number of posts with correct pluralization" do
-     page.should have_selector 'span', tex: "#{user.microposts.count} microposts"
-     expect { click_link('delete') }.to change(user.microposts, :count).by(-1)
-     page.should have_selector 'span', tex: "#{user.microposts.count} micropost"
-    end
-    
-    it "should paginate micropost feed" do
-      page.should have_selector 'li', class: 'prev previous_page disabled'
-    end
-    
-    it "should list each micropost" do
-      user.feed.paginate(page: 1).each do |micropost|
-        page.should have_selector('li', text: micropost.content)
-      end
-    end
-    
-    #RECHECK THIS TEST
-    it "should not have delete link on other user's microposts" do
-      other_user.feed.paginate(page: 1).each do |micropost|
-        page.should_not have_link('delete', href: "/microposts/#{ micropost.id }"), text: 'delete'
-      end
-    end
   end
 end

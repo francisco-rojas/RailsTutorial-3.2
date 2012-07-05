@@ -9,23 +9,20 @@
 #  updated_at      :datetime        not null
 #  password_digest :string(255)
 #  remember_token  :string(255)
+#  admin           :boolean         default(FALSE)
 #
 
-# == Schema Information
-#
-# Table name: users
-#
-#  id              :integer         not null, primary key
-#  name            :string(255)
-#  email           :string(255)
-#  created_at      :datetime        not null
-#  updated_at      :datetime        not null
-#  password_digest :string(255)
-#
 class User < ActiveRecord::Base
   attr_accessible :name, :email, :password, :password_confirmation
   has_secure_password
   has_many :microposts, dependent: :destroy
+  has_many :relationships, foreign_key: "follower_id", dependent: :destroy
+  has_many :followed_users, through: :relationships, source: :followed
+  has_many :reverse_relationships, foreign_key: "followed_id",
+                                   class_name:  "Relationship",
+                                   dependent:   :destroy
+  #source is optional here.
+  has_many :followers, through: :reverse_relationships, source: :follower
 
   before_save { |user| user.email = email.downcase }
   before_save :create_remember_token
@@ -43,6 +40,19 @@ class User < ActiveRecord::Base
     #? ensures that id is properly escaped before being included in the underlying SQL query,
     #thereby avoiding a serious security hole called SQL injection. 
     Micropost.where("user_id = ?", id)
+  end
+  
+  def following?(other_user)
+    relationships.find_by_followed_id(other_user.id)
+  end
+
+  def follow!(other_user)
+  #equivalent to: self.relationships.create!(...)
+    relationships.create!(followed_id: other_user.id)
+  end
+  
+  def unfollow!(other_user)
+    relationships.find_by_followed_id(other_user.id).destroy
   end
 
   private
