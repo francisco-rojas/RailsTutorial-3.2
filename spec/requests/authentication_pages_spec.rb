@@ -80,6 +80,16 @@ describe "AuthenticationPages" do
           it { should_not have_link('Settings', href: edit_user_path(user)) }
           it { should_not have_link('Sign out', href: signout_path) }          
         end
+        
+        describe "visiting the following page" do
+          before { visit following_user_path(user) }
+          it { should have_selector('title', text: 'Sign in') }
+        end
+
+        describe "visiting the followers page" do
+          before { visit followers_user_path(user) }
+          it { should have_selector('title', text: 'Sign in') }
+        end
       end
       
       describe "when attempting to visit a protected page" do
