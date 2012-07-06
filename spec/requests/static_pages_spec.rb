@@ -68,7 +68,7 @@ describe "Static pages" do
       #RECHECK THIS TEST
       it "should not have delete link on other user's microposts" do
         other_user.feed.paginate(page: 1).each do |micropost|
-          page.should_not have_link('delete', href: "/microposts/#{ micropost.id }"), text: 'delete'
+          page.should_not have_link('delete', href: "/microposts/#{ micropost.id }", text: 'delete')
         end
       end
       

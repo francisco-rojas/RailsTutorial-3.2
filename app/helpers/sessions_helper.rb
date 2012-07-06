@@ -33,13 +33,6 @@ module SessionsHelper
   def store_location
     session[:return_to] = request.fullpath
   end
-
-  private
-
-  def user_from_remember_token
-    remember_token = cookies[:remember_token]
-    User.find_by_remember_token(remember_token) unless remember_token.nil?
-  end
   
   def signed_in_user
     unless signed_in?
@@ -47,4 +40,11 @@ module SessionsHelper
       redirect_to signin_path, notice: "Please sign in."
     end
   end
+
+  private
+
+    def user_from_remember_token
+      remember_token = cookies[:remember_token]
+      User.find_by_remember_token(remember_token) unless remember_token.nil?
+    end
 end

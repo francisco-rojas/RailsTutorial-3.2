@@ -115,6 +115,22 @@ describe "AuthenticationPages" do
             end
           end
         end
+        
+        describe "in the Relationships controller" do
+          describe "submitting to the create action" do
+            before { post relationships_path }
+            specify { response.should redirect_to(signin_path) }
+          end
+  
+          describe "submitting to the destroy action" do
+            #in order to avoid the overhead of creating a virtually useless Relationship object,
+            #the delete test hard-codes the id 1 in the named route.
+            #This works because the user should be redirected before the application ever tries
+            #to retrieve the relationship with this id.
+            before { delete relationship_path(1) }
+            specify { response.should redirect_to(signin_path) }          
+          end
+        end
       end
       
       describe "as non-admin user" do

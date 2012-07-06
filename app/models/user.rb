@@ -34,12 +34,8 @@ class User < ActiveRecord::Base
   validates :password, length: { minimum: 6 }
   validates :password_confirmation, presence: true
   
-  def feed
-    # This is preliminary. See "Following users" for the full implementation.
-    
-    #? ensures that id is properly escaped before being included in the underlying SQL query,
-    #thereby avoiding a serious security hole called SQL injection. 
-    Micropost.where("user_id = ?", id)
+  def feed    
+    Micropost.from_users_followed_by(self)
   end
   
   def following?(other_user)
