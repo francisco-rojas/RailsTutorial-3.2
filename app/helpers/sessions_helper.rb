@@ -1,7 +1,9 @@
 module SessionsHelper
   def sign_in(user)
     cookies.permanent[:remember_token] = user.remember_token
-    current_user = user
+    #The use of self is necessary in this context because without self, 
+    #Ruby would simply create a local variable called current_user.
+    self.current_user = user 
   end
 
   def signed_in?
@@ -11,7 +13,7 @@ module SessionsHelper
   def current_user=(user)
     @current_user = user
   end
-
+  debugger
   def current_user
     @current_user ||= user_from_remember_token
   end
@@ -21,7 +23,7 @@ module SessionsHelper
   end
 
   def sign_out
-    current_user = nil
+    self.current_user = nil#current_user = nil
     cookies.delete(:remember_token)
   end
   

@@ -210,5 +210,16 @@ describe User do
       it { should_not be_following(other_user) }
       its(:followed_users) { should_not include(other_user) }
     end
+    
+    describe "after destroying a user" do
+      it "should delete that user's relationships" do
+        #expect { @user.destroy }.to change(Relationship, :count) WORKS!!
+        relationships = @user.relationships
+        @user.destroy
+        relationships.each do |relationship|
+          Relationship.find_by_id(relationship.id).should be_nil
+        end
+      end
+    end
   end
 end

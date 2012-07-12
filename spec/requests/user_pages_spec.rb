@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'sessions_helper'
 
 describe "User pages" do
 
@@ -54,23 +55,25 @@ describe "User pages" do
     let!(:m1) { FactoryGirl.create(:micropost, user: user, content: "Foo") }
     let!(:m2) { FactoryGirl.create(:micropost, user: user, content: "Bar") }
 
-    before { visit user_path(user) }
-
-    it { should have_selector('h1',    text: user.name) }
+    before do
+      valid_signin user #why?
+      visit user_path(user) 
+    end
+    
+    it { should have_selector('h1', text: user.name) }
     it { should have_selector('title', text: user.name) }
 
     describe "microposts" do
       it { should have_content(m1.content) }
       it { should have_content(m2.content) }
-      #In the unlikely event that finding the count is still a bottleneck in your application, 
+      #In the unlikely event that finding the count is still a bottleneck in your application,
       #you can make it even faster with a counter cache. Check Section 10.2.1
       it { should have_content(user.microposts.count) }
     end
     
     describe "follow/unfollow buttons" do
       let(:other_user) { FactoryGirl.create(:user) }
-      before { valid_signin user }
-
+      
       describe "following a user" do
         before { visit user_path(other_user) }
 
@@ -117,6 +120,18 @@ describe "User pages" do
       end
     end
   end
+    
+    # describe "stats" do
+      # let(:other_user) { FactoryGirl.create(:user) }
+      # before do 
+        # visit user_path(other_user)
+        # click_button "Follow"
+      # end
+#       
+      # it { should have_link("#{user.following.count}", href: following_user_path(user)) }
+    # end
+    
+   
 
   describe "edit" do
     let(:user) { FactoryGirl.create(:user) }
