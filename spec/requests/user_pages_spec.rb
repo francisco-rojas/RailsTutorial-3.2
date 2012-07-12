@@ -56,7 +56,7 @@ describe "User pages" do
     let!(:m2) { FactoryGirl.create(:micropost, user: user, content: "Bar") }
 
     before do
-      valid_signin user #why?
+      valid_signin user
       visit user_path(user) 
     end
     
@@ -69,6 +69,18 @@ describe "User pages" do
       #In the unlikely event that finding the count is still a bottleneck in your application,
       #you can make it even faster with a counter cache. Check Section 10.2.1
       it { should have_content(user.microposts.count) }
+    end
+    
+    describe "stats (_user_info.html.erb partial)" do
+      let(:other_user) { FactoryGirl.create(:user) }
+      before do 
+        visit user_path(other_user)
+        click_button "Follow"
+        visit user_path(user)
+      end
+      
+      it { should have_link("#{user.followed_users.count} following", href: following_user_path(user)) }
+      it { should_not have_link("view my profile", href: user_path(user)) }
     end
     
     describe "follow/unfollow buttons" do
@@ -94,7 +106,7 @@ describe "User pages" do
           it { should have_selector('input', value: 'Unfollow') }
         end
       end
-
+      
       describe "unfollowing a user" do
         before do
           user.follow!(other_user)
@@ -121,18 +133,6 @@ describe "User pages" do
     end
   end
     
-    # describe "stats" do
-      # let(:other_user) { FactoryGirl.create(:user) }
-      # before do 
-        # visit user_path(other_user)
-        # click_button "Follow"
-      # end
-#       
-      # it { should have_link("#{user.following.count}", href: following_user_path(user)) }
-    # end
-    
-   
-
   describe "edit" do
     let(:user) { FactoryGirl.create(:user) }
     before do
